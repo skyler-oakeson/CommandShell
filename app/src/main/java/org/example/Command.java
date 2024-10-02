@@ -1,5 +1,6 @@
 package org.example;
+import java.io.IOException;
 
 public abstract class Command {
-  abstract int execute(String[] args);
+  abstract void execute(String[] args);
 }
