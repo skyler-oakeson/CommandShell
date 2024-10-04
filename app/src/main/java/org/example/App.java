@@ -4,54 +4,20 @@
 package org.example;
 
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.HashMap;
 
 public class App {
   public static void main(String[] args) {
-    HashMap<String, Command> cmds = new HashMap<String, Command>();
-    cmds.put("ls", new Ls());
-
     Scanner scan = new Scanner(System.in);
-    Boolean running = true;
+    ShellEnv env = ShellEnv.getInstance();
 
-    while (running) {
+    while (env.isRunning()) {
       String curr = System.getProperty("user.dir");
       System.out.printf("[%s]: ", curr);
       String input = scan.nextLine();
-      String[] commandArray = splitCommand(input);
-      if (cmds.containsKey(commandArray[0])) {
-        cmds.get(commandArray[0]).execute(commandArray);
+      if (input.length() > 0) {
+        env.executeCmd(input);
       }
     }
     scan.close();
-  }
-
-  /**
-   * Split the user command by spaces, but preserving them when inside
-   * double-quotes.
-   * Code Adapted from:
-   * https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
-   */
-  public static String[] splitCommand(String command) {
-    java.util.List<String> matchList = new java.util.ArrayList<>();
-
-    Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
-    Matcher regexMatcher = regex.matcher(command);
-    while (regexMatcher.find()) {
-      if (regexMatcher.group(1) != null) {
-        // Add double-quoted string without the quotes
-        matchList.add(regexMatcher.group(1));
-      } else if (regexMatcher.group(2) != null) {
-        // Add single-quoted string without the quotes
-        matchList.add(regexMatcher.group(2));
-      } else {
-        // Add unquoted word
-        matchList.add(regexMatcher.group());
-      }
-    }
-
-    return matchList.toArray(new String[matchList.size()]);
   }
 }
