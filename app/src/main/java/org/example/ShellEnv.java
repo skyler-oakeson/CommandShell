@@ -27,8 +27,8 @@ public class ShellEnv {
       cmds.put("rdir", new Rdir());
       cmds.put("history", new History());
       cmds.put("^", new RunHist());
-      //cmds.put("ptime", new Ptime());
-      //cmds.put("exit", new Exit());
+      cmds.put("ptime", new Ptime());
+      cmds.put("exit", new Exit());
     }
 
     public static synchronized ShellEnv getInstance() {
@@ -49,7 +49,7 @@ public class ShellEnv {
       return running;
     }
 
-    public void toggleRunning() {
+    public void shutDown() {
       running = !running;
     }
 
@@ -60,9 +60,31 @@ public class ShellEnv {
     public void executeCmd(String input) {
       String[] args = splitCommand(input);
       if (cmds.containsKey(args[0])) {
-        boolean res = cmds.get(args[0]).execute(args);
-        if (res) history.add(input);
+        try {
+          boolean res = cmds.get(args[0]).execute(args);
+          if (res) history.add(input);
+        } catch (Exception e) {
+          System.out.println(e);
+        }
       } else {
+        try {
+          boolean isPipe = false;
+          for (String string : args) {
+            if (string.equals("|")) {
+              isPipe = true;
+              break;
+            }
+          }
+          if (isPipe) {
+            boolean res = new Pipe().execute(args);
+            if (res) history.add(input);
+          } else {
+            boolean res = new NonBuiltIn().execute(args);
+            if (res) history.add(input);
+          }
+        } catch (Exception e) {
+          System.out.println(e);
+        }
       }
     }
 

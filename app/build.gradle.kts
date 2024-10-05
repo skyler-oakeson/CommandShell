@@ -30,6 +30,12 @@ java {
     }
 }
 
+tasks.withType<Jar> {
+  manifest {
+    attributes["Main-Class"] = "org.example.App"
+  }
+}
+
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
 }
